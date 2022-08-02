@@ -1,42 +1,41 @@
 {
-    "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
-    "version": "1.7.0",
-    "homepage": "https://jquake.net/",
-    "license": "Unknown",
-    "architecture": {
-        "32bit": {
-            "url": "https://fleneindre.github.io/downloads/JQuake_1.7.0_win_32bit.zip",
-            "hash": "9581e6f4b0bfd34cb0c549b052de310702b02fd84ed4cc4854ebba2b99d6e0b0"
-        },
-        "64bit": {
-            "url": "https://fleneindre.github.io/downloads/JQuake_1.7.0_win_64bit.zip",
-            "hash": "6b4cf41ba6dea51b80b80599f4be550157609de454ef3e7c9bb1f5390eb5c33a"
-        }
+  "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
+  "version": "1.7.0",
+  "homepage": "https://jquake.net/",
+  "license": "Unknown",
+  "architecture": {
+    "32bit": {
+      "url": "https://fleneindre.github.io/downloads/JQuake_1.7.0_win_32bit.zip",
+      "hash": "9581e6f4b0bfd34cb0c549b052de310702b02fd84ed4cc4854ebba2b99d6e0b0"
     },
-    "bin": "JQuake.exe",
-    "shortcuts": [
-        [
-            "JQuake.exe",
-            "JQuake"
-        ]
-    ],
-    "persist": "settings",
-    "pre_install": [
-        "$null = New-Item -Path $dir\\settings -ItemType Directory",
-        "Write-Output $dir\\settings | Out-File -NoNewline -Append $dir\\SettingsPath.properties"
-    ],
-    "checkver": {
-        "url": "https://jquake.net/data/versions.json",
-        "jsonpath": "$.latest"
-    },
-    "autoupdate": {
-        "architecture": {
-            "32bit": {
-                "url": "https://fleneindre.github.io/downloads/JQuake_$version_win_32bit.zip"
-            },
-            "64bit": {
-                "url": "https://fleneindre.github.io/downloads/JQuake_$version_win_64bit.zip"
-            }
-        }
+    "64bit": {
+      "url": "https://fleneindre.github.io/downloads/JQuake_1.7.0_win_64bit.zip",
+      "hash": "6b4cf41ba6dea51b80b80599f4be550157609de454ef3e7c9bb1f5390eb5c33a"
     }
+  },
+  "bin": "JQuake.exe",
+  "shortcuts": [
+    [
+      "JQuake.exe",
+      "JQuake"
+    ]
+  ],
+  "persist": "settings",
+  "pre_install": [
+    "Write-Output $dir\\settings | Out-File -NoNewline -Append $dir\\SettingsPath.properties"
+  ],
+  "checkver": {
+    "url": "https://jquake.net/data/versions.json",
+    "jsonpath": "$.latest"
+  },
+  "autoupdate": {
+    "architecture": {
+      "32bit": {
+        "url": "https://fleneindre.github.io/downloads/JQuake_$version_win_32bit.zip"
+      },
+      "64bit": {
+        "url": "https://fleneindre.github.io/downloads/JQuake_$version_win_64bit.zip"
+      }
+    }
+  }
 }
