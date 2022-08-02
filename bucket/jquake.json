@@ -2,6 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
   "version": "1.7.0",
   "homepage": "https://jquake.net/",
+  "description": "Real-Time Strong Motion and Earthquake Early Warning",
   "license": "Unknown",
   "architecture": {
     "32bit": {
