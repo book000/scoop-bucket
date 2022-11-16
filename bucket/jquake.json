@@ -1,17 +1,17 @@
 {
     "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
-    "version": "1.8.2",
+    "version": "1.8.3",
     "homepage": "https://jquake.net/",
     "description": "Real-Time Strong Motion and Earthquake Early Warning",
     "license": "Unknown",
     "architecture": {
         "32bit": {
-            "url": "https://fleneindre.github.io/downloads/JQuake_1.8.2_win_32bit.zip",
-            "hash": "a26d7fd25509338677ac3808f98b5222c707248c8752ac6bdbcc1d7d26d2d26a"
+            "url": "https://fleneindre.github.io/downloads/JQuake_1.8.3_win_32bit.zip",
+            "hash": "311443832a76b10744233c215c249b1e2cdd66fc7cfee3de4cbbdf899d230692"
         },
         "64bit": {
-            "url": "https://fleneindre.github.io/downloads/JQuake_1.8.2_win_64bit.zip",
-            "hash": "6f0f61949fcca43d09a82575a43c9268445a5e06f12290e1a7ed32e6687cce45"
+            "url": "https://fleneindre.github.io/downloads/JQuake_1.8.3_win_64bit.zip",
+            "hash": "194eb0e5eacf6f660e624af153fa51406bfa3e52038dad84a4ad2ef1d505f83e"
         }
     },
     "bin": "JQuake.exe",
