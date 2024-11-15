@@ -14,7 +14,6 @@
         ]
     ],
     "persist": "data",
-    "post_install": "if (!(Test-Path -Path \"$dir\\data\\config.yaml\")) { Invoke-WebRequest -Uri \"https://github.com/tomacheese/splashscreen-changer/raw/refs/heads/master/config.yaml.sample\" -OutFile \"$dir\\data\\config.yaml\" }",
     "checkver": {
         "url": "https://api.github.com/repos/tomacheese/splashscreen-changer/releases/latest",
         "jsonpath": "$.assets..name",
