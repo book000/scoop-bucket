@@ -13,7 +13,10 @@
             "splashscreen-changer"
         ]
     ],
-    "persist": "data",
+    "persist": [
+        "data",
+        "logs"
+    ],
     "checkver": {
         "url": "https://api.github.com/repos/tomacheese/splashscreen-changer/releases/latest",
         "jsonpath": "$.assets..name",
