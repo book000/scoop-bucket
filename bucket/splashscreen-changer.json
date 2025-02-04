@@ -1,11 +1,11 @@
 {
     "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "description": "Randomize SplashScreen in EasyAntiCheat",
     "homepage": "https://github.com/tomacheese/splashscreen-changer",
     "license": "MIT",
-    "url": "https://github.com/tomacheese/splashscreen-changer/releases/download/v1.0.22/splashscreen-changer_Windows_x86_64.zip",
-    "hash": "9b2a6062448acd9e5756b161d47cf073d8d0b9d23007475202b8afe8f1e86f94",
+    "url": "https://github.com/tomacheese/splashscreen-changer/releases/download/v1.0.23/splashscreen-changer_Windows_x86_64.zip",
+    "hash": "f0a211baac27923d373d138684b99cbaca8b3ec6bcaa5f5d916b6b4537b22d12",
     "bin": "splashscreen-changer.exe",
     "shortcuts": [
         [
