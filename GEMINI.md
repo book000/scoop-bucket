@@ -15,7 +15,14 @@
 - 日本語と英数字の間には半角スペースを入れる。
 
 ## プロジェクト概要
-- 目的: Scoop bucket for myself
+Windows パッケージマネージャー Scoop のカスタムバケット（アプリケーション配布リポジトリ）。
+
+### 技術スタック
+- **言語**: JSON (manifest format)
+- **フレームワーク**: Scoop package manager
+- **パッケージマネージャー**: Scoop
+- **主要な依存関係**:
+  - None（マニフェストベース）
 
 ## コーディング規約
 - フォーマット: 既存設定（ESLint / Prettier / formatter）に従う。
@@ -23,9 +30,11 @@
 - コメント言語: 日本語
 - エラーメッセージ: 英語
 
-## 開発コマンド
+### 開発コマンド
 ```bash
-# README を確認してください
+# install
+scoop bucket add book000-bucket https://github.com/book000/scoop-bucket
+
 ```
 
 ## 注意事項
@@ -34,3 +43,5 @@
 - 既存のプロジェクトルールがある場合はそれを優先する。
 
 ## リポジトリ固有
+- jquake アプリケーション配布
+- Windows Scoop パッケージマネージャー専用
