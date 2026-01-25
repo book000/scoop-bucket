@@ -78,7 +78,7 @@
 
 - **Scoop バケット**: JSON マニフェストファイルで Windows アプリケーションのインストールを管理する
 - **マニフェスト配置**: すべてのマニフェストは `bucket/` ディレクトリに配置する
-- **命名規則**: マニフェストファイル名はアプリケーション名を小文字で記載する（例: `jquake.json`, `splashscreen-changer.json`）
+- **命名規則**: マニフェストファイル名は原則として小文字を使用するが、アプリケーション名に大文字が含まれる場合はそのまま使用する（例: `jquake.json`, `splashscreen-changer.json`, `ElitesRNGAuraObserver.json`）
 - **必須フィールド**: `version`, `description`, `homepage`, `license`, `url`, `hash` は必須
 - **アーキテクチャ**: 32bit/64bit で異なるバイナリがある場合は `architecture` フィールドを使用する
 - **persist**: 永続化が必要なディレクトリ・ファイルは `persist` フィールドで指定する

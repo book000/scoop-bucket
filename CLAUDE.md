@@ -242,7 +242,7 @@ Codex CLI や Gemini CLI の他エージェントに相談することができ�
 - **自動更新**: Excavator が 4 時間ごとに自動でバージョン更新の PR を作成する
 - **バージョン管理**: `checkver` フィールドで最新バージョンの検出方法を定義する
 - **autoupdate**: `autoupdate` フィールドで自動更新時の URL パターンを定義する
-- **命名規則**: マニフェストファイル名はアプリケーション名を小文字で記載する（例: `jquake.json`, `splashscreen-changer.json`）
+- **命名規則**: マニフェストファイル名は原則として小文字を使用するが、アプリケーション名に大文字が含まれる場合はそのまま使用する（例: `jquake.json`, `splashscreen-changer.json`, `ElitesRNGAuraObserver.json`）
 - **必須フィールド**: `version`, `description`, `homepage`, `license`, `url`, `hash` は必須
 - **アーキテクチャ**: 32bit/64bit で異なるバイナリがある場合は `architecture` フィールドを使用する
 - **persist**: 永続化が必要なディレクトリ・ファイルは `persist` フィールドで指定する

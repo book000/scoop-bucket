@@ -45,7 +45,7 @@
 - **プロジェクト**: 個人用 Scoop バケット (Windows パッケージマネージャー)
 - **技術スタック**: PowerShell, JSON, GitHub Actions
 - **マニフェスト配置**: すべてのマニフェストは `bucket/` ディレクトリに配置する
-- **命名規則**: マニフェストファイル名はアプリケーション名を小文字で記載する
+- **命名規則**: マニフェストファイル名は原則として小文字を使用するが、アプリケーション名に大文字が含まれる場合はそのまま使用する（例: `jquake.json`, `splashscreen-changer.json`, `ElitesRNGAuraObserver.json`）
 - **必須フィールド**: `version`, `description`, `homepage`, `license`, `url`, `hash` は必須
 - **自動更新**: Excavator が 4 時間ごとに自動でバージョン更新の PR を作成する
 - **Scoop Schema**: JSON マニフェストは [Scoop Schema](https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json) に準拠する
