@@ -18,9 +18,9 @@
 
 ## プロジェクト概要
 
-- 目的: 個人用 Scoop バケット (Windows パッケージマネージャー)
-- 主な機能: アプリケーションマニフェストの管理、自動バージョン更新
-- 対象ユーザー: 開発者本人
+- **目的**: 個人用 Scoop バケット (Windows パッケージマネージャー)
+- **主な機能**: アプリケーションマニフェストの管理、自動バージョン更新
+- **対象ユーザー**: 開発者本人
 
 ## 重要ルール
 
@@ -231,9 +231,9 @@ Codex CLI や Gemini CLI の他エージェントに相談することができ�
 1. コンフリクトが発生していないことを確認する
 2. PR 本文の内容は、ブランチの現在の状態を、今までのこの PR での更新履歴を含むことなく、最新の状態のみ、漏れなく日本語で記載されていることを確認する
 3. `gh pr checks <PR ID> --watch` で GitHub Actions CI を待ち、その結果がエラーとなっていないことを確認する
-4. `request-review-copilot` コマンドが存在する場合、`request-review-copilot https://github.com/$OWNER/$REPO/pull/$PR_NUMBER` で GitHub Copilot へレビューを依頼する
+4. ローカル環境に `request-review-copilot` コマンドがインストールされている場合（インストール方法や利用手順はこのリポジトリの README または社内ドキュメントを参照）、`request-review-copilot https://github.com/$OWNER/$REPO/pull/$PR_NUMBER` で GitHub Copilot へレビューを依頼する（コマンドが利用できない場合はこの手順はスキップしてよい）
 5. 10 分以内に投稿される GitHub Copilot レビューへの対応を行う。対応したら、レビューコメントそれぞれに対して返信を行う
-6. `/code-review:code-review` によるコードレビューを実施する。スコアが 50 以上の指摘事項に対して対応する
+6. `/code-review` コマンドでコードレビューを実施する。スコアが 50 以上の指摘事項に対して対応する
 
 ## リポジトリ固有
 
