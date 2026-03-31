@@ -2,7 +2,8 @@ name: Keep Alive
 
 # GitHub Actions は 60 日間リポジトリへのアクティビティがないと
 # スケジュールワークフローを自動的に無効化する。
-# このワークフローは定期的に実行して無効化を防ぐ。
+# このワークフローは定期的に実行し、無効化されたワークフローを
+# GitHub API で再有効化する。
 # 参考: https://gooner.hateblo.jp/entry/2025/02/27/163322
 
 on:
@@ -16,8 +17,17 @@ jobs:
     name: Keep Alive
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      actions: write
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: gautamkrishnar/keepalive-workflow@v2
+      - name: 非アクティブにより無効化されたワークフローを再有効化
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # 非アクティブにより無効化されたワークフローを取得し再有効化
+          gh api "repos/${{ github.repository }}/actions/workflows" \
+            --jq '.workflows[] | select(.state == "disabled_inactivity") | .id' \
+          | while read -r workflow_id; do
+            gh api --method PUT "repos/${{ github.repository }}/actions/workflows/${workflow_id}/enable"
+            echo "Enabled workflow ID: ${workflow_id}"
+          done
