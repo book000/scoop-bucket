@@ -1,0 +1,21 @@
+name: Keep Alive
+
+# GitHub Actions は 60 日間リポジトリへのアクティビティがないと
+# スケジュールワークフローを自動的に無効化する。
+# このワークフローは定期的に実行して無効化を防ぐ。
+# 参考: https://gooner.hateblo.jp/entry/2025/02/27/163322
+
+on:
+  schedule:
+    # 毎月 1 日 0:00 UTC に実行
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    name: Keep Alive
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gautamkrishnar/keepalive-workflow@v2
