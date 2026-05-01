@@ -38,7 +38,10 @@ jobs:
         run: |
           $sshDir = Join-Path $env:USERPROFILE '.ssh'
           New-Item -ItemType Directory -Force -Path $sshDir | Out-Null
-          $env:EXCAVATOR_SSH_KEY | Out-File -FilePath (Join-Path $sshDir 'id_ed25519') -Encoding ascii -NoNewline
+          $keyPath = Join-Path $sshDir 'id_ed25519'
+          $env:EXCAVATOR_SSH_KEY | Out-File -FilePath $keyPath -Encoding ascii -NoNewline
+          # Windows OpenSSH は ACL が緩いと鍵を拒否するため権限を絞る
+          icacls $keyPath /inheritance:r /grant:r "${env:USERNAME}:F" | Out-Null
           # known_hosts に GitHub を登録
           ssh-keyscan github.com | Out-File -FilePath (Join-Path $sshDir 'known_hosts') -Encoding ascii
           git remote set-url origin "git@github.com:$($env:GITHUB_REPOSITORY).git"
