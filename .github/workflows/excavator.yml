@@ -1,7 +1,8 @@
 name: Excavator
 
-# ScoopInstaller/GithubActions@main は -Push モード固定のため、
-# ブランチ保護ルール (PR 必須) に対応するためカスタムステップで -Request モードを使用する
+# ScoopInstaller/GithubActions@main は -Push モード固定で、かつ auto-pr.ps1 の
+# -Request モードに既知のバグ (クォート漏れ) があるため、独自実装に置き換える
+# 参考: https://github.com/ScoopInstaller/Scoop/blob/master/bin/auto-pr.ps1#L134
 
 on:
   workflow_dispatch:
@@ -30,9 +31,6 @@ jobs:
           Invoke-WebRequest 'https://raw.githubusercontent.com/ScoopInstaller/Install/master/install.ps1' -UseBasicParsing -OutFile $installer
           & $installer
           Add-Content -Path $env:GITHUB_PATH -Value (Join-Path $env:USERPROFILE 'scoop\shims')
-      - name: Install hub
-        shell: pwsh
-        run: scoop install hub
       - name: Configure git
         shell: pwsh
         env:
@@ -40,18 +38,73 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          $remUrl = "https://$($env:GITHUB_ACTOR):$($env:GITHUB_TOKEN)@github.com/$($env:GITHUB_REPOSITORY).git"
-          git remote set-url --push origin $remUrl
-          git remote add upstream (git remote get-url origin)
+          git remote set-url --push origin "https://x-access-token:$($env:GITHUB_TOKEN)@github.com/$($env:GITHUB_REPOSITORY).git"
       - name: Excavate
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HUB_VERBOSE: "1"
+          SCOOP_GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          $ErrorActionPreference = 'Continue'
+          $originBranch = 'master'
           $scoopHome = scoop prefix scoop
-          & (Join-Path $scoopHome 'bin\auto-pr.ps1') `
-            -Upstream "$($env:GITHUB_REPOSITORY):master" `
-            -Dir (Join-Path $env:GITHUB_WORKSPACE 'bucket') `
-            -Request `
-            -SkipUpdated
+          $bucketDir = Join-Path $env:GITHUB_WORKSPACE 'bucket'
+
+          # 全マニフェストのバージョンチェックと更新
+          & (Join-Path $scoopHome 'bin\checkver.ps1') -Dir $bucketDir -Update -SkipUpdated
+
+          # 変更されたマニフェストを取得
+          $changedFiles = git diff --name-only | Where-Object { $_ -like 'bucket/*.json' }
+
+          if (-not $changedFiles) {
+            Write-Host 'No updates found.'
+            exit 0
+          }
+
+          foreach ($file in $changedFiles) {
+            $app = [System.IO.Path]::GetFileNameWithoutExtension($file)
+            $json = Get-Content $file -Raw | ConvertFrom-Json
+            $version = $json.version
+            $branch = "manifest/$app-$version"
+
+            # リモートブランチが既に存在する場合はスキップ
+            $remoteExists = git ls-remote --heads origin $branch
+            if ($remoteExists) {
+              Write-Host "Branch $branch already exists, skipping $app..."
+              git checkout -- $file
+              continue
+            }
+
+            Write-Host "Creating PR for $app $version..."
+
+            git checkout -b $branch
+            git add $file
+            git commit -m "${app}: Update to version ${version}"
+            git push origin $branch
+
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "Push failed for $branch, skipping..."
+              git checkout $originBranch
+              continue
+            }
+
+            $homepage = $json.homepage
+            $prBody = @"
+${app}: Update to version ${version}
+
+Hello lovely humans,
+a new version of [${app}](${homepage}) is available.
+
+| State       | Update |
+| :---------- | :----- |
+| New version | ${version} |
+"@
+
+            gh pr create `
+              --title "${app}: Update to version ${version}" `
+              --body $prBody `
+              --base $originBranch `
+              --head $branch
+
+            git checkout $originBranch
+          }
