@@ -1,11 +1,11 @@
 {
     "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "Idling Light Manager",
     "homepage": "https://github.com/tomacheese/IdlingLightManager",
     "license": "MIT",
-    "url": "https://github.com/tomacheese/IdlingLightManager/releases/download/v0.1.1/IdlingLightManager.zip",
-    "hash": "595ca40465e6e07c9d8bed2274aa6131f10031771756477bc81cc8533177db12",
+    "url": "https://github.com/tomacheese/IdlingLightManager/releases/download/v0.1.2/IdlingLightManager.zip",
+    "hash": "a14a0364f7063a081a5af034f572ef5fd0639d1444d44f37a7904df6e86de439",
     "shortcuts": [
         [
             "IdlingLightManager.exe",
