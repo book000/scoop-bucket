@@ -1,12 +1,13 @@
 name: Excavator
 
-# See https://github.com/ScoopInstaller/Extras/blob/master/.github/workflows/excavator.yml
-
 on:
   workflow_dispatch:
   schedule:
     # run every 4 hours
     - cron: "20 */4 * * *"
+
+permissions:
+  contents: write
 
 jobs:
   excavate:
@@ -14,9 +15,64 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@main
-      - name: Excavate
-        uses: ScoopInstaller/GithubActions@main
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Scoop
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+          $installer = Join-Path $env:TEMP 'scoop-install.ps1'
+          Invoke-WebRequest 'https://raw.githubusercontent.com/ScoopInstaller/Install/b0ee913725139b816f9178163af0aecdba07a7ed/install.ps1' -UseBasicParsing -OutFile $installer
+          & $installer
+          Add-Content -Path $env:GITHUB_PATH -Value (Join-Path $env:USERPROFILE 'scoop\shims')
+      - name: Configure git
+        shell: pwsh
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - name: Setup SSH deploy key
+        shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SKIP_UPDATED: "1"
+          EXCAVATOR_SSH_KEY: ${{ secrets.EXCAVATOR_SSH_KEY }}
+        run: |
+          $sshDir = Join-Path $env:USERPROFILE '.ssh'
+          New-Item -ItemType Directory -Force -Path $sshDir | Out-Null
+          $keyPath = Join-Path $sshDir 'id_ed25519'
+          $env:EXCAVATOR_SSH_KEY | Out-File -FilePath $keyPath -Encoding ascii -NoNewline
+          # Windows OpenSSH は ACL が緩いと鍵を拒否するため権限を絞る
+          icacls $keyPath /inheritance:r /grant:r "${env:USERNAME}:F" | Out-Null
+          # known_hosts に GitHub を登録
+          ssh-keyscan github.com | Out-File -FilePath (Join-Path $sshDir 'known_hosts') -Encoding ascii
+          git remote set-url origin "git@github.com:$($env:GITHUB_REPOSITORY).git"
+      - name: Excavate
+        shell: pwsh
+        env:
+          SCOOP_GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $scoopHome = scoop prefix scoop
+          $bucketDir = Join-Path $env:GITHUB_WORKSPACE 'bucket'
+
+          # 全マニフェストのバージョンチェックと更新
+          & (Join-Path $scoopHome 'bin\checkver.ps1') -Dir $bucketDir -Update -SkipUpdated
+
+          # 変更されたマニフェストを取得
+          $changedFiles = git diff --name-only | Where-Object { $_ -like 'bucket/*.json' }
+
+          if (-not $changedFiles) {
+            Write-Host 'No updates found.'
+            exit 0
+          }
+
+          foreach ($file in $changedFiles) {
+            $app = [System.IO.Path]::GetFileNameWithoutExtension($file)
+            $json = Get-Content $file -Raw | ConvertFrom-Json
+            $version = $json.version
+
+            Write-Host "Pushing update: $app $version"
+            git add $file
+            git commit -m "${app}: Update to version ${version}"
+          }
+
+          git push origin master
