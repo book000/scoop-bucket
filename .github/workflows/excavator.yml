@@ -1,9 +1,5 @@
 name: Excavator
 
-# ScoopInstaller/GithubActions@main は -Push モード固定で、かつ auto-pr.ps1 の
-# -Request モードに既知のバグ (クォート漏れ) があるため、独自実装に置き換える
-# 参考: https://github.com/ScoopInstaller/Scoop/blob/master/bin/auto-pr.ps1#L134
-
 on:
   workflow_dispatch:
   schedule:
@@ -12,7 +8,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   excavate:
@@ -33,20 +28,26 @@ jobs:
           Add-Content -Path $env:GITHUB_PATH -Value (Join-Path $env:USERPROFILE 'scoop\shims')
       - name: Configure git
         shell: pwsh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git remote set-url --push origin "https://x-access-token:$($env:GITHUB_TOKEN)@github.com/$($env:GITHUB_REPOSITORY).git"
+      - name: Setup SSH deploy key
+        shell: pwsh
+        env:
+          EXCAVATOR_SSH_KEY: ${{ secrets.EXCAVATOR_SSH_KEY }}
+        run: |
+          $sshDir = Join-Path $env:USERPROFILE '.ssh'
+          New-Item -ItemType Directory -Force -Path $sshDir | Out-Null
+          $env:EXCAVATOR_SSH_KEY | Out-File -FilePath (Join-Path $sshDir 'id_ed25519') -Encoding ascii -NoNewline
+          # known_hosts に GitHub を登録
+          ssh-keyscan github.com | Out-File -FilePath (Join-Path $sshDir 'known_hosts') -Encoding ascii
+          git remote set-url origin "git@github.com:$($env:GITHUB_REPOSITORY).git"
       - name: Excavate
         shell: pwsh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SCOOP_GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $ErrorActionPreference = 'Continue'
-          $originBranch = 'master'
+          $ErrorActionPreference = 'Stop'
           $scoopHome = scoop prefix scoop
           $bucketDir = Join-Path $env:GITHUB_WORKSPACE 'bucket'
 
@@ -65,46 +66,10 @@ jobs:
             $app = [System.IO.Path]::GetFileNameWithoutExtension($file)
             $json = Get-Content $file -Raw | ConvertFrom-Json
             $version = $json.version
-            $branch = "manifest/$app-$version"
 
-            # リモートブランチが既に存在する場合はスキップ
-            $remoteExists = git ls-remote --heads origin $branch
-            if ($remoteExists) {
-              Write-Host "Branch $branch already exists, skipping $app..."
-              git checkout -- $file
-              continue
-            }
-
-            Write-Host "Creating PR for $app $version..."
-
-            git checkout -b $branch
+            Write-Host "Pushing update: $app $version"
             git add $file
             git commit -m "${app}: Update to version ${version}"
-            git push origin $branch
-
-            if ($LASTEXITCODE -ne 0) {
-              Write-Host "Push failed for $branch, skipping..."
-              git checkout $originBranch
-              continue
-            }
-
-            $homepage = $json.homepage
-            $prBody = @"
-${app}: Update to version ${version}
-
-Hello lovely humans,
-a new version of [${app}](${homepage}) is available.
-
-| State       | Update |
-| :---------- | :----- |
-| New version | ${version} |
-"@
-
-            gh pr create `
-              --title "${app}: Update to version ${version}" `
-              --body $prBody `
-              --base $originBranch `
-              --head $branch
-
-            git checkout $originBranch
           }
+
+          git push origin master
