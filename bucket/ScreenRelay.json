@@ -13,7 +13,11 @@
             "--config config/config.json"
         ]
     ],
-    "persist": "config",
+    "persist": [
+        "config",
+        "logs",
+        "state"
+    ],
     "post_install": "if (!(Test-Path \"$dir\\config\\config.json\")) { Copy-Item \"$dir\\config.example.json\" \"$dir\\config\\config.json\" }",
     "checkver": {
         "url": "https://api.github.com/repos/tomacheese/ScreenRelay/releases/latest",
