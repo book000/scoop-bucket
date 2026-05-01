@@ -1,12 +1,17 @@
 name: Excavator
 
-# See https://github.com/ScoopInstaller/Extras/blob/master/.github/workflows/excavator.yml
+# ScoopInstaller/GithubActions@main は -Push モード固定のため、
+# ブランチ保護ルール (PR 必須) に対応するためカスタムステップで -Request モードを使用する
 
 on:
   workflow_dispatch:
   schedule:
     # run every 4 hours
     - cron: "20 */4 * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   excavate:
@@ -15,8 +20,38 @@ jobs:
 
     steps:
       - uses: actions/checkout@main
-      - name: Excavate
-        uses: ScoopInstaller/GithubActions@main
+        with:
+          fetch-depth: 0
+      - name: Install Scoop
+        shell: pwsh
+        run: |
+          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+          $installer = Join-Path $env:TEMP 'scoop-install.ps1'
+          Invoke-WebRequest 'https://raw.githubusercontent.com/ScoopInstaller/Install/master/install.ps1' -UseBasicParsing -OutFile $installer
+          & $installer
+          Add-Content -Path $env:GITHUB_PATH -Value (Join-Path $env:USERPROFILE 'scoop\shims')
+      - name: Install hub
+        shell: pwsh
+        run: scoop install hub
+      - name: Configure git
+        shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SKIP_UPDATED: "1"
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          $remUrl = "https://$($env:GITHUB_ACTOR):$($env:GITHUB_TOKEN)@github.com/$($env:GITHUB_REPOSITORY).git"
+          git remote set-url --push origin $remUrl
+          git remote add upstream (git remote get-url origin)
+      - name: Excavate
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HUB_VERBOSE: "1"
+        run: |
+          $scoopHome = scoop prefix scoop
+          & (Join-Path $scoopHome 'bin\auto-pr.ps1') `
+            -Upstream "$($env:GITHUB_REPOSITORY):master" `
+            -Dir (Join-Path $env:GITHUB_WORKSPACE 'bucket') `
+            -Request `
+            -SkipUpdated
