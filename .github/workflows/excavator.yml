@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ssh-key: ${{ secrets.EXCAVATOR_SSH_KEY }}
       - name: Install Scoop
         shell: pwsh
         run: |
@@ -31,19 +32,7 @@ jobs:
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-      - name: Setup SSH deploy key
-        shell: pwsh
-        env:
-          EXCAVATOR_SSH_KEY: ${{ secrets.EXCAVATOR_SSH_KEY }}
-        run: |
-          $sshDir = Join-Path $env:USERPROFILE '.ssh'
-          New-Item -ItemType Directory -Force -Path $sshDir | Out-Null
-          $keyPath = Join-Path $sshDir 'id_ed25519'
-          $env:EXCAVATOR_SSH_KEY | Out-File -FilePath $keyPath -Encoding ascii -NoNewline
-          # Windows OpenSSH は ACL が緩いと鍵を拒否するため権限を絞る
-          icacls $keyPath /inheritance:r /grant:r "${env:USERNAME}:F" | Out-Null
-          # known_hosts に GitHub を登録
-          ssh-keyscan github.com | Out-File -FilePath (Join-Path $sshDir 'known_hosts') -Encoding ascii
+          # actions/checkout が ssh-key を使う場合、remote URL は HTTPS のままなので SSH URL に変更する
           git remote set-url origin "git@github.com:$($env:GITHUB_REPOSITORY).git"
       - name: Excavate
         shell: pwsh
