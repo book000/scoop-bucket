@@ -109,4 +109,11 @@ jobs:
             git commit -m "${app}: Update to version ${version}"
           }
 
+          # README.md の Apps セクションを更新
+          & (Join-Path $env:GITHUB_WORKSPACE 'bin\update-readme.ps1')
+          if (git diff --name-only | Where-Object { $_ -eq 'README.md' }) {
+            git add README.md
+            git commit -m "docs(readme): Apps セクションを自動更新"
+          }
+
           git push origin master
