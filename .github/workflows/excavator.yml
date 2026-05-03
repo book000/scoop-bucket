@@ -51,13 +51,12 @@ jobs:
           ssh-keyscan -H github.com 2>$null | Out-File -FilePath $knownHostsPath -Encoding ascii
 
           # SSH config を設定（GitHub 接続時に excavator_ed25519 を使用、BatchMode で認証失敗時に即座エラー）
-          @"
-Host github.com
-    IdentityFile $keyPath
-    StrictHostKeyChecking yes
-    UserKnownHostsFile $knownHostsPath
-    BatchMode yes
-"@ | Out-File -FilePath (Join-Path $sshDir 'config') -Encoding ascii
+          $sshConfigPath = Join-Path $sshDir 'config'
+          Set-Content -Path $sshConfigPath -Value "Host github.com" -Encoding ascii
+          Add-Content -Path $sshConfigPath -Value "    IdentityFile $keyPath" -Encoding ascii
+          Add-Content -Path $sshConfigPath -Value "    StrictHostKeyChecking yes" -Encoding ascii
+          Add-Content -Path $sshConfigPath -Value "    UserKnownHostsFile $knownHostsPath" -Encoding ascii
+          Add-Content -Path $sshConfigPath -Value "    BatchMode yes" -Encoding ascii
 
           # SSH 接続テストで Deploy Key 認証を事前確認（exit 1 は GitHub の正常動作）
           Write-Host 'Testing SSH connection to GitHub...'
