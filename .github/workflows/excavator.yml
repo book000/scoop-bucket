@@ -111,7 +111,8 @@ jobs:
 
           # README.md の Apps セクションを更新
           & (Join-Path $env:GITHUB_WORKSPACE 'bin\update-readme.ps1')
-          if (git diff --name-only | Where-Object { $_ -eq 'README.md' }) {
+          $readmeChanged = git diff --name-only README.md
+          if ($readmeChanged) {
             git add README.md
             git commit -m "docs(readme): Apps セクションを自動更新"
           }
