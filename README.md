@@ -11,3 +11,4 @@ scoop bucket add book000-bucket https://github.com/book000/scoop-bucket
 ## Apps
 
 - jquake
+- ScreenRelay
