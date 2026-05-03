@@ -48,24 +48,32 @@ jobs:
           # Windows OpenSSH は ACL が緩いと鍵を拒否するため権限を絞る
           icacls $keyPath /inheritance:r /grant:r "${env:USERNAME}:F" | Out-Null
 
-          # known_hosts に GitHub を登録
+          # GitHub の公式 SSH ホスト鍵を固定値で書き込む（ssh-keyscan による MITM リスクを回避）
           $knownHostsPath = Join-Path $sshDir 'known_hosts'
-          ssh-keyscan -H github.com 2>$null | Out-File -FilePath $knownHostsPath -Encoding ascii
+          $githubHostKeys = @(
+            "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl",
+            "github.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEmKSENjQEezOmxkZMy7opKgwFB9nkt5YRrYMjNuG5N87uRgg6CLrbo5wAdT/y6v0mKV0U2w0WZ2YB/++Tpockg=",
+            "github.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCj7ndNxQowgcQnjshcLrqPEiiphnt+VTTvDP6mHBL9j1aNUkY4Ue1gvwnGLVlOhGeYrnZaMgRK6+PKCUXaDbC7qtbW8gIkhL7aGCsOr/C56SJMy/BCZfxd1nWzAOxSDPgVsmerOBYfNqltV9/hWCqBywINIR+5dIg6JTJ72pcEpEjcYgXkE2YEFXV1JHnsKgbLWNlhScqb2UmyRkQyytRLtL+38TGxkxCflmO+5Z8CSSNY7GidjMIZ7Q4zMjA2n1nGrlTDkzwDCsw+wqFPGQA179cnfGWOWRVruj16z6XyvxvjJwbz0wQZ75XK5tKSb7FNyeIEs4TT4jk+S4dhPeAUC5y+bDYirYgM4GC7uEnztnZyaVWQ7B381AK4Qdrwt51ZqExKbQpTUNn+EjqoTwvqNj4kqx5QUCI0ThS/YkOxJCXmPUWZbhjpCg56i+2aB6CmK2JGhn57K5mj0MNdBXA4/WnwH6XoPWJzK5Nyu2zB3nAZp+S5hpQs+p1vN1/wsjk="
+          )
+          [System.IO.File]::WriteAllBytes($knownHostsPath, [System.Text.Encoding]::ASCII.GetBytes(($githubHostKeys -join "`n") + "`n"))
 
           # SSH config を設定（GitHub 接続時に excavator_ed25519 を使用、BatchMode で認証失敗時に即座エラー）
           $sshConfigPath = Join-Path $sshDir 'config'
-          Set-Content -Path $sshConfigPath -Value "Host github.com" -Encoding ascii
-          Add-Content -Path $sshConfigPath -Value "    IdentityFile $keyPath" -Encoding ascii
-          Add-Content -Path $sshConfigPath -Value "    StrictHostKeyChecking yes" -Encoding ascii
-          Add-Content -Path $sshConfigPath -Value "    UserKnownHostsFile $knownHostsPath" -Encoding ascii
-          Add-Content -Path $sshConfigPath -Value "    BatchMode yes" -Encoding ascii
+          $sshConfig = @(
+            "Host github.com",
+            "    IdentityFile $keyPath",
+            "    StrictHostKeyChecking yes",
+            "    UserKnownHostsFile $knownHostsPath",
+            "    BatchMode yes"
+          )
+          [System.IO.File]::WriteAllBytes($sshConfigPath, [System.Text.Encoding]::ASCII.GetBytes(($sshConfig -join "`n") + "`n"))
 
           # SSH 接続テストで Deploy Key 認証を事前確認（exit 1 は GitHub の正常動作）
           Write-Host 'Testing SSH connection to GitHub...'
           $sshOutput = ssh -T git@github.com 2>&1
           Write-Host $sshOutput
           if ($sshOutput -notmatch 'successfully authenticated') {
-            Write-Error 'SSH authentication failed. Verify EXCAVATOR_SSH_KEY secret matches the registered deploy key.'
+            Write-Error "SSH connection or authentication failed. Possible causes: invalid key format, key not registered as deploy key, or network issue."
             exit 1
           }
 
