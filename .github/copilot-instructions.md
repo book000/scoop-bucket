@@ -29,7 +29,7 @@
 ## 誤検知しやすい・指摘不要なパターン
 
 - マニフェストのファイル名にアプリ名由来の大文字が含まれること (例: `ElitesRNGAuraObserver.json`, `ScreenRelay.json`) は意図的。小文字化を一律に求めない。
-- `description` 等が日本語で書かれているのは意図的な運用方針。英語化を求めない。
+- マニフェストの `description` が英語で書かれているのは上流アプリの説明文をそのまま採用しているため。日本語化を一律に求めない。
 - `$schema` が `ScoopInstaller/Scoop` の `master` を指すのは Scoop バケットの標準的な指定であり問題ない。
 - `README.md` の Apps セクションは `bin/update-readme.ps1` により自動生成されるため、手動整形の指摘は不要。
 
