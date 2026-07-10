@@ -1,88 +1,39 @@
-# GitHub Copilot Instructions
+# GitHub Copilot レビュー指示
 
-## プロジェクト概要
+個人用 Scoop バケット (Windows パッケージマネージャー) のリポジトリ。中身は `bucket/*.json` の Scoop マニフェストと `bin/*.ps1` の PowerShell ユーティリティ。以下はコードレビュー時の重点確認事項。
 
-- **目的**: 個人用 Scoop バケット (Windows パッケージマネージャー)
-- **主な機能**: アプリケーションマニフェストの管理、自動バージョン更新
-- **対象ユーザー**: 開発者本人
+## レビュー時の言語
 
-## 共通ルール
-
-- 会話は日本語で行う。
-- コミットメッセージは [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) に従う。`<description>` は日本語で記載する。
-- ブランチ命名は [Conventional Branch](https://conventional-branch.github.io) に従う。`<type>` は短縮形 (feat, fix) を使用する。
+- レビューコメントは日本語で記載する。
 - 日本語と英数字の間には半角スペースを入れる。
 
-## 技術スタック
+## マニフェスト (`bucket/*.json`) の確認点
 
-- 言語: PowerShell, JSON
-- パッケージマネージャー: Scoop
-- CI/CD: GitHub Actions
-- テストフレームワーク: Pester 5.2.0+
+- [Scoop Schema](https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json) に準拠しているか (`$schema` フィールドを含むこと)。
+- 必須フィールドが揃っているか: `version`, `description`, `homepage`, `license`, `url`, `hash`。
+- `hash` が欠落・空でないか (欠落はセキュリティ・完全性リスクとして必ず指摘する)。
+- `checkver` と `autoupdate` が定義されているか。欠落していると自動バージョン更新ができないため指摘する。
+- `autoupdate` の URL パターンが `checkver` で取得するバージョンと整合しているか (`$version` 等のプレースホルダの使い方)。
+- 32bit/64bit で異なるバイナリがある場合は `architecture` フィールドを使っているか。
 
-## コーディング規約
+## PowerShell スクリプト (`bin/*.ps1`) の確認点
 
-- JSON マニフェストは [Scoop Schema](https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json) に準拠する。
-- JSON フォーマットは `formatjson.ps1` で統一する。
-- PowerShell スクリプトは PowerShell 5.1+ と PowerShell Core で動作すること。
-- コメントは日本語で記載する。
-- エラーメッセージは英語で記載する。
+- Windows PowerShell 5.1 と PowerShell Core の両方で動作するか (CI が両環境でテストするため、片方専用の cmdlet・構文に注意)。
+- エラーメッセージは英語、コメントは日本語で記載されているか。
 
-## 開発コマンド
+## セキュリティ
 
-```powershell
-# マニフェストのバージョンチェック
-.\bin\checkver.ps1
+- API キー・トークン・パスワード等の機密情報がコミットされていないか。
+- `GITHUB_TOKEN` はワークフローに自動提供されるため、シークレットとして追加していないか。
 
-# マニフェストの URL チェック
-.\bin\checkurls.ps1
+## 誤検知しやすい・指摘不要なパターン
 
-# マニフェストのハッシュチェック
-.\bin\checkhashes.ps1
+- マニフェストのファイル名にアプリ名由来の大文字が含まれること (例: `ElitesRNGAuraObserver.json`, `ScreenRelay.json`) は意図的。小文字化を一律に求めない。
+- マニフェストの `description` が英語で書かれているのは上流アプリの説明文をそのまま採用しているため。日本語化を一律に求めない。
+- `$schema` が `ScoopInstaller/Scoop` の `master` を指すのは Scoop バケットの標準的な指定であり問題ない。
+- `README.md` の Apps セクションは `bin/update-readme.ps1` により自動生成されるため、手動整形の指摘は不要。
 
-# JSON フォーマット
-.\bin\formatjson.ps1
+## 良い例 / 悪い例
 
-# テスト実行 (Pester)
-.\bin\test.ps1
-
-# 自動 PR 作成
-.\bin\auto-pr.ps1
-
-# checkver が未定義のマニフェストを検出
-.\bin\missing-checkver.ps1
-```
-
-## テスト方針
-
-- テストフレームワーク: Pester 5.2.0+
-- テストコマンド: `.\bin\test.ps1`
-- GitHub Actions で WindowsPowerShell と PowerShell Core の両方でテストを実行する。
-- マニフェストの追加・更新時は必ず `checkver.ps1` と `test.ps1` を実行する。
-
-## セキュリティ / 機密情報
-
-- API キーや認証情報を Git にコミットしない。
-- ログに個人情報や認証情報を出力しない。
-- GitHub Actions の `GITHUB_TOKEN` は自動で提供されるため、シークレットに追加しない。
-
-## ドキュメント更新
-
-マニフェストの追加・更新時は以下を更新する：
-
-- `README.md` の Apps セクションに新規マニフェストを追加する。
-
-## リポジトリ固有
-
-- **Scoop バケット**: JSON マニフェストファイルで Windows アプリケーションのインストールを管理する。
-- **マニフェスト配置**: すべてのマニフェストは `bucket/` ディレクトリに配置する。
-- **自動更新**: Excavator が 4 時間ごとに自動でバージョン更新の PR を作成する。
-- **バージョン管理**: `checkver` フィールドで最新バージョンの検出方法を定義する。
-- **autoupdate**: `autoupdate` フィールドで自動更新時の URL パターンを定義する。
-- **命名規則**: マニフェストファイル名は原則として小文字を使用するが、アプリケーション名に大文字が含まれる場合はそのまま使用する（例: `jquake.json`, `splashscreen-changer.json`, `ElitesRNGAuraObserver.json`）。
-- **必須フィールド**: `version`, `description`, `homepage`, `license`, `url`, `hash` は必須。
-- **アーキテクチャ**: 32bit/64bit で異なるバイナリがある場合は `architecture` フィールドを使用する。
-- **persist**: 永続化が必要なディレクトリ・ファイルは `persist` フィールドで指定する。
-- **shortcuts**: デスクトップショートカットは `shortcuts` フィールドで定義する。
-- **bin**: コマンドラインから実行可能にする場合は `bin` フィールドで指定する。
-- **pre_install/post_install**: インストール前後の処理が必要な場合は PowerShell スクリプトで定義する。
+- 良い: `checkver` と `autoupdate` を備え `hash` が設定されたマニフェスト。
+- 悪い: `hash` や `checkver` を省略したマニフェスト (自動更新不可・完全性未検証)。
