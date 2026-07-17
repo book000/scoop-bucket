@@ -16,4 +16,4 @@ scoop bucket add book000-bucket https://github.com/book000/scoop-bucket
 - [jquake](https://jquake.net/): 1.8.5
 - [ScreenRelay](https://github.com/tomacheese/ScreenRelay): 0.2.9
 - [splashscreen-changer](https://github.com/tomacheese/splashscreen-changer): 1.1.49
-- [SpoutRelay](https://github.com/tomacheese/SpoutRelay): 0.8.5
+- [SpoutRelay](https://github.com/tomacheese/SpoutRelay): 0.8.6
