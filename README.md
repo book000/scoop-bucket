@@ -11,7 +11,7 @@ scoop bucket add book000-bucket https://github.com/book000/scoop-bucket
 ## Apps
 
 - [ElitesRNGAuraObserver](https://github.com/tomacheese/ElitesRNGAuraObserver): 1.6.6
-- [freefilesync](https://freefilesync.org): 14.10
+- [freefilesync](https://freefilesync.org): 14.11
 - [IdlingLightManager](https://github.com/tomacheese/IdlingLightManager): 0.2.23
 - [jquake](https://jquake.net/): 1.8.5
 - [ScreenRelay](https://github.com/tomacheese/ScreenRelay): 0.2.12
