@@ -12,7 +12,7 @@ scoop bucket add book000-bucket https://github.com/book000/scoop-bucket
 
 - [ElitesRNGAuraObserver](https://github.com/tomacheese/ElitesRNGAuraObserver): 1.6.6
 - [freefilesync](https://freefilesync.org): 14.13
-- [IdlingLightManager](https://github.com/tomacheese/IdlingLightManager): 0.2.30
+- [IdlingLightManager](https://github.com/tomacheese/IdlingLightManager): 0.2.31
 - [jquake](https://jquake.net/): 1.8.5
 - [ScreenRelay](https://github.com/tomacheese/ScreenRelay): 0.3.2
 - [splashscreen-changer](https://github.com/tomacheese/splashscreen-changer): 1.1.77
