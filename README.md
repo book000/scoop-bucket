@@ -14,6 +14,6 @@ scoop bucket add book000-bucket https://github.com/book000/scoop-bucket
 - [freefilesync](https://freefilesync.org): 14.13
 - [IdlingLightManager](https://github.com/tomacheese/IdlingLightManager): 0.2.31
 - [jquake](https://jquake.net/): 1.8.5
-- [ScreenRelay](https://github.com/tomacheese/ScreenRelay): 0.3.2
+- [ScreenRelay](https://github.com/tomacheese/ScreenRelay): 0.3.3
 - [splashscreen-changer](https://github.com/tomacheese/splashscreen-changer): 1.1.79
-- [SpoutRelay](https://github.com/tomacheese/SpoutRelay): 0.8.12
+- [SpoutRelay](https://github.com/tomacheese/SpoutRelay): 0.8.13
