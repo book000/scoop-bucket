@@ -14,12 +14,12 @@ jobs:
 
     steps:
       - name: Checkout Bucket
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 2
           path: "my_bucket"
       - name: Checkout Scoop
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: ScoopInstaller/Scoop
           path: "scoop_core"
@@ -36,12 +36,12 @@ jobs:
 
     steps:
       - name: Checkout Bucket
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 2
           path: "my_bucket"
       - name: Checkout Scoop
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: ScoopInstaller/Scoop
           path: "scoop_core"
