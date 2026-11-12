@@ -1,6 +1,6 @@
 param(
     # overwrite the default of the Scoop core script's upstream parameter
-    [String]$upstream = "lukesampson/scoop-extras:master"
+    [String]$upstream = "book000/scoop-bucket:master"
 )
 
 if(!$env:SCOOP_HOME) { $env:SCOOP_HOME = Resolve-Path (scoop prefix scoop) }
