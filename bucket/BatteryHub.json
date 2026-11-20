@@ -1,0 +1,24 @@
+{
+    "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/master/schema.json",
+    "version": "1.1.0",
+    "description": "Tray app that shows the battery level of wireless mice, headsets, keyboards and controllers on the taskbar",
+    "homepage": "https://github.com/krisgfx9/Wireless-Device-Battery-Monitor",
+    "license": "GPL-3.0",
+    "url": "https://github.com/krisgfx9/Wireless-Device-Battery-Monitor/releases/download/v1.1.0/BatteryHub-1.1.0-portable.zip",
+    "hash": "7a97a1ff0aefa895386077093b23a714df549a08fad3b1b9c37ccf2100a27026",
+    "bin": "BatteryHub.exe",
+    "shortcuts": [
+        [
+            "BatteryHub.exe",
+            "BatteryHub"
+        ]
+    ],
+    "checkver": {
+        "url": "https://api.github.com/repos/krisgfx9/Wireless-Device-Battery-Monitor/releases/latest",
+        "jsonpath": "$.tag_name",
+        "regex": "v(.+)"
+    },
+    "autoupdate": {
+        "url": "https://github.com/krisgfx9/Wireless-Device-Battery-Monitor/releases/download/v$version/BatteryHub-$version-portable.zip"
+    }
+}
